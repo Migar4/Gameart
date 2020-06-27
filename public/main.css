@@ -1,0 +1,132 @@
+ul{
+    list-style: none;
+}
+
+li{
+    color: white;
+}
+
+img{
+    padding: 0px;
+    margin: 40px;
+    width: 300px;
+    height: 300px;
+}
+.header_bar{
+    height: 12%;
+    width: 100%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    overflow-y: hidden;
+    padding-top: 30px;
+}
+
+.header_bar p{
+    margin: 0 auto;
+    text-align: center;
+}
+.header_bar p{
+    color: white;
+    font-size: 25px;
+}
+
+.sidenav{
+    height: 100%;
+    width: 16%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    overflow-x: hidden;
+    padding-top: 16%;
+}
+
+.sidenav button{
+    margin-top: 12%;
+    display: block;
+    background-color: gray;
+    color: white;
+    padding: 22px 16px;
+    width: 100%;
+    border: none;
+    outline: none;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.middle{
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    z-index: 0;
+    background-color: rgb(197, 218, 214);
+    overflow-x: hidden; 
+}
+
+.middle input{
+    align-items: center;
+    position: fixed;
+    width: 40%;
+    height: 10%;
+    margin-bottom: 40px;
+    top: 20%;
+    left: 38%;
+    z-index: 1;
+    text-align: center;
+    font-size: 300%;
+}
+
+.middle .items{
+    position: absolute;
+    -ms-overflow-style: none;
+    background-color: rgba(119, 119, 119, 0.651);
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 100%;
+}
+
+.middle .items::-webkit-scrollbar {
+    display: none;
+  }
+
+.contain{
+    position: fixed;
+    top: 30%;
+    left: 16%;
+    width: 84%;
+    height: 78%;
+}
+
+
+.card{
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    max-width: 300px;
+    height: auto;
+    width: 100%;
+    margin: 40px;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    float: left;
+}
+
+.card button{
+    border: none;
+    outline: 0;
+    padding: 12px;
+    color: royalblue;
+    background-color: silver;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+    font-size: 18px;
+}
+
+.content{
+    width: 100%;
+    margin: 0;
+}

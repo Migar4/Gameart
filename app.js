@@ -70,8 +70,10 @@ io.on('connection', async (socket) => {
         try{
             let data = [];
             
-            if(input != '')
-                data = await cardModel.find({name: input});
+            if(input != ''){
+                let reg = new RegExp('^' + input, 'i');
+                data = await cardModel.find({name: reg});
+            }
             else
                 data = await cardModel.find({});
 

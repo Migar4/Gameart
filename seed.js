@@ -50,9 +50,9 @@ async function seedDB(){
     try{
         let doc = await cardModel.deleteMany({});
         if(!doc){
-            console.log("Couldn't delete campgrounds");
+            console.log("Couldn't delete cards");
         }else{
-            console.log("deleted the campgrounds");
+            console.log("deleted the cards");
         }
 
         data.forEach(async (seed) => {

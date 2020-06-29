@@ -2,6 +2,10 @@ var express = require("express");
 var app = express();
 const socketio = require("socket.io");
 const mongoose = require("mongoose");
+const multer = require('multer');
+const upload = multer({
+    dest: 'images'
+});
 const cardModel = require('./models/cards').Card;
 // require('./seed')();
 
@@ -29,6 +33,20 @@ var Card = require("./classes/cards");
 
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + '/views'));
+
+
+app.get("/upload", (req, res) => {
+    res.render("upload");
+});
+
+
+app.post("/upload", upload.single('upload'), (req, res) => {
+    console.log(req.body.name, req.body.desc);
+    res.send("Success");
+}, (error, req, res, next) => {
+    res.status(400).send({error : error.message});
+});
+
 
 
 app.get("*", (req, res) => {

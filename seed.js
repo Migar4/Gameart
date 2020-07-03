@@ -3,7 +3,7 @@ const cardModel = require('./models/cards').Card;
 let data = [
     {
         name: "Spongebob",
-        image: "https://upload.wikimedia.org/wikipedia/en/thumb/4/44/SpongeBob_SquarePants_characters_promo.png/370px-SpongeBob_SquarePants_characters_promo.png",
+        images: "https://upload.wikimedia.org/wikipedia/en/thumb/4/44/SpongeBob_SquarePants_characters_promo.png/370px-SpongeBob_SquarePants_characters_promo.png",
         description: "Spongebob and his friends",
         type: "2D"
     },

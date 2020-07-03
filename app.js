@@ -4,7 +4,9 @@ const socketio = require("socket.io");
 const mongoose = require("mongoose");
 const multer = require('multer');
 const upload = multer({
-    dest: 'images'
+    limits: {
+        fileSize: 10000000
+    }
 });
 const cardModel = require('./models/cards').Card;
 // require('./seed')();
@@ -29,20 +31,28 @@ const io = socketio(expressServer);
 
 //made
 var Card = require("./classes/cards");
+const sharp = require("sharp");
 
 
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + '/views'));
 
+app.get("/", (req, res) => {
+    res.render("index", {cards: {}});
+});
 
 app.get("/upload", (req, res) => {
     res.render("upload");
 });
 
 
-app.post("/upload", upload.single('upload'), (req, res) => {
-    console.log(req.body.name, req.body.desc);
-    res.send("Success");
+app.post("/upload", upload.single('upload'), async (req, res) => {
+    
+    const buf = await sharp(req.file.buffer).resize({width: 250, height: 250}).png().toBuffer();
+    let card = new cardModel({name: req.body.name, showImage: buf, description: req.body.desc});
+    
+    card.save();
+    res.redirect("/");
 }, (error, req, res, next) => {
     res.status(400).send({error : error.message});
 });
@@ -50,7 +60,7 @@ app.post("/upload", upload.single('upload'), (req, res) => {
 
 
 app.get("*", (req, res) => {
-    res.render("index", {cards: {}});
+    res.redirect("/");
 });
 
 
@@ -67,7 +77,7 @@ io.on('connection', async (socket) => {
                 console.log(err);
             else{
                 data.forEach((card) => {
-                    var c = new Card(card.name, card.image, card.description);
+                    var c = new Card(card.name, card.showImage, card.description);
                     cards.push(c);
                 });
             }
@@ -96,7 +106,7 @@ io.on('connection', async (socket) => {
                 data = await cardModel.find({});
 
             data.forEach((card) => {
-                var c = new Card(card.name, card.image, card.description);
+                var c = new Card(card.name, card.showImage, card.description);
                 cards.push(c);
             });
                 

@@ -3,11 +3,9 @@ const mongoose = require("mongoose");
 const cardSchema = new mongoose.Schema({
     images:[{
         type: Buffer,
-        required: true
     }],
     showImage:{
         type:  Buffer,
-        required: true
     },
     name: {
         type: String

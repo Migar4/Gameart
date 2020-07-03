@@ -1,13 +1,5 @@
-let socket = io.connect('http://localhost:3000');
-let items = document.querySelector(".items");
 
-
-socket.on('data', (data) => {
-    console.log(data);
-});
-
-//  <img class="content" src="${card.image}" alt=""></img>
-
+//encode to base64
 function encode (input) {
     var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
     var output = "";
@@ -34,27 +26,3 @@ function encode (input) {
     }
     return output;
 }
-
-socket.on('cards', (cards) => {
-    cards.forEach((card) => {
-        const bytes = new Uint8Array(card.image);
-
-        items.innerHTML +=
-        `
-        <div class="card">
-            <img class="content" src="data:image/png;base64,${encode(bytes)}">
-            <h1>${card.name}</h1>
-            <p>${card.desc}</p>
-            <button>Download</button>
-        </div>
-        `;
-    });
-});
-
-
-let search = document.querySelector("#search");
-
-search.addEventListener('keyup', (input) => {
-    items.innerHTML = ``;
-    socket.emit('find', search.value);
-});

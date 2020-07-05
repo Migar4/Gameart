@@ -1,12 +1,21 @@
-var express = require("express");
-var app = express();
+const express = require("express");
+const app = express();
 const socketio = require("socket.io");
+const bodyParser = require('body-parser');
+const helmet = require('helmet');
 
 
 const mainRouter = require('./routes/mainRoute');
 
-// const cardModel = require('./models/cards').Card;
-// // require('./seed')();
+// require('./seed')();
+
+///////////////
+//config app
+//////////////
+
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+app.use(helmet());
 
 app.set("view engine", "ejs");
 

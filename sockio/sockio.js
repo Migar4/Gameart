@@ -24,7 +24,7 @@ io.on('connection', async (socket) => {
                 console.log(err);
             else{
                 data.forEach((card) => {
-                    var c = new Card(card.name, card.showImage, card.description);
+                    var c = new Card(card._id.toString(), card.name, card.showImage, card.description);
                     cards.push(c);
                 });
             }
@@ -32,7 +32,7 @@ io.on('connection', async (socket) => {
     }catch(e){
         console.log(e);
     }
-    
+
     //send it once when joined
     socket.emit('cards', cards);
 
@@ -61,7 +61,7 @@ io.on('connection', async (socket) => {
 
             //for all that is in the data array make a new instance of the card class and push for the array
             data.forEach((card) => {
-                var c = new Card(card.name, card.showImage, card.description);
+                var c = new Card(card._id.toString(), card.name, card.showImage, card.description);
                 cards.push(c);
             });
                 

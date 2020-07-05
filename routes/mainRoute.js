@@ -1,7 +1,7 @@
 const express = require('express');
 const sharp = require("sharp");
 const multer = require('multer');
-const bodyParser = require('body-parser');
+
 
 /////////////
 //Get models
@@ -24,13 +24,6 @@ const upload = multer({
 ////////////////
 
 const router = new express.Router();
-
-///////////////
-//config route
-//////////////
-
-router.use(bodyParser.urlencoded({extended: false}));
-router.use(bodyParser.json());
 
 //home
 router.get("/", (req, res) => {
@@ -55,6 +48,8 @@ router.post("/upload", upload.fields([{name: "upload", maxCount: 1}, {name: "img
             let img = await sharp(req.files.imgs[i].buffer).resize({width: 250, height: 250}).png().toBuffer();
             imgs.push(img);
         }
+
+        //create a zip here
         
         let card = new cardModel({name: req.body.name, showImage: buf, description: req.body.desc, images: imgs});
         
@@ -70,6 +65,12 @@ router.post("/upload", upload.fields([{name: "upload", maxCount: 1}, {name: "img
     res.status(400).send({error : error.message});
 });
 
+
+//download route
+router.get("/download/:id", async (req, res) => {
+    console.log("Download " + req.params.id);
+    res.redirect("back");
+});
 
 //any other route redirect back to home
 router.get("*", (req, res) => {

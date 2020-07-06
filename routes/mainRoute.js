@@ -75,6 +75,9 @@ router.get("/download/:id", async (req, res) => {
     
     try{
 
+        //find the card with id and add each image buffer to the archiver
+        const card = await cardModel.findOne({_id: req.params.id});
+
         //////////////////
         //config archiver
         //////////////////
@@ -97,18 +100,27 @@ router.get("/download/:id", async (req, res) => {
         });
 
         //config output stream
-        const output = fs.createWriteStream(__dirname + '/../zips/arc.zip');
+        const output = fs.createWriteStream(`${__dirname}/../zips/${card.name}.zip`);
 
         output.on('close', () => {
             console.log(archive.pointer() + ' total bytes');
 
             output.end();
 
-            let file = `${__dirname}/../zips/arc.zip`;
-            res.download(file, (err) => {
-                if(err)
-                    console.log(err);
+            let file = `${__dirname}/../zips/${card.name}.zip`;
+            
+            let fileStream = fs.createReadStream(file);
+
+            res.attachment(`${card.name}.zip`);
+            fileStream.pipe(res);
+            
+            fileStream.on('end', () => {
+                console.log("END");
+                fs.unlink(file, () => {
+                    console.log(`Deleted ${card.name}`);
+                });
             });
+
         });
 
 
@@ -116,13 +128,8 @@ router.get("/download/:id", async (req, res) => {
             console.log('Data has been drained');
         });
 
-        
-
         //use achiver to pipe to the output stream
         archive.pipe(output);
-
-        //find the card with id and add each image buffer to the archiver
-        const card = await cardModel.findOne({_id: req.params.id});
 
         let imgs = card.images;
 

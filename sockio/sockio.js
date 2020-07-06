@@ -1,4 +1,7 @@
 const io = require('../servers').io;
+const mongoose = require('mongoose');
+const archiver = require('archiver');
+const fs = require('fs');
 
 //the javascript class
 var Card = require('../classes/cards');

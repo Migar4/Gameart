@@ -28,9 +28,3 @@ search.addEventListener('keyup', (input) => {
     items.innerHTML = ``;
     socket.emit('find', search.value);
 });
-
-
-//function when download is pressed
-function download(id){
-    window.location.href = '/download/' + id;
-}

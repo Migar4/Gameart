@@ -1,6 +1,8 @@
 const express = require('express');
 const sharp = require("sharp");
 const multer = require('multer');
+const archiver = require('archiver');
+const fs = require('fs');
 
 
 /////////////
@@ -18,6 +20,8 @@ const upload = multer({
         fileSize: 10000000
     }
 });
+
+
 
 ////////////////
 ///Routes begin
@@ -41,7 +45,7 @@ router.get("/upload", (req, res) => {
 router.post("/upload", upload.fields([{name: "upload", maxCount: 1}, {name: "imgs", maxCount: 20}]), async (req, res) => {
 
     try{
-        const buf = await sharp(req.files.upload[0].buffer).resize({width: 250, height: 250}).png().toBuffer();
+        const buf = await sharp(req.files.upload[0].buffer).png().toBuffer();
         let imgs = new Array;
 
         for(let i = 0; i < req.files.imgs.length; i++){
@@ -68,8 +72,71 @@ router.post("/upload", upload.fields([{name: "upload", maxCount: 1}, {name: "img
 
 //download route
 router.get("/download/:id", async (req, res) => {
-    console.log("Download " + req.params.id);
-    res.redirect("back");
+    
+    try{
+
+        //////////////////
+        //config archiver
+        //////////////////
+
+        let archive = archiver('zip', {
+            zlib: {level: 9}
+        });
+
+
+        archive.on('warning', (err) => {
+            if(err.code === 'ENOENT'){
+                console.log(err);
+            }else{
+                throw err;
+            }
+        });
+
+        archive.on('error', (err) => {
+            console.log(err);
+        });
+
+        //config output stream
+        const output = fs.createWriteStream(__dirname + '/../zips/arc.zip');
+
+        output.on('close', () => {
+            console.log(archive.pointer() + ' total bytes');
+
+            output.end();
+
+            let file = `${__dirname}/../zips/arc.zip`;
+            res.download(file, (err) => {
+                if(err)
+                    console.log(err);
+            });
+        });
+
+
+        output.on('end', () => {
+            console.log('Data has been drained');
+        });
+
+        
+
+        //use achiver to pipe to the output stream
+        archive.pipe(output);
+
+        //find the card with id and add each image buffer to the archiver
+        const card = await cardModel.findOne({_id: req.params.id});
+
+        let imgs = card.images;
+
+        for(let i = 0; i < imgs.length; i++){
+            archive.append(imgs[i], {name: 'image' + i + '.png'});
+        }  
+
+        //archive.append(buf, {name: 'file.txt'});
+        archive.finalize();
+        
+    }catch(e){
+        console.log(e);
+    }
+    
 });
 
 //any other route redirect back to home

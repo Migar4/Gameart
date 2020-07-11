@@ -47,18 +47,24 @@
             <div class="options">
 
                 <div class="sidenav" id="ltSidenav">
-                    <button class="tablinks">Link</button>
-                    <button class="tablinks">Link</button>
-                    <button class="tablinks">Link</button>
+                    <button class="tablinks">2D</button>
+                    <button class="tablinks">Isometric</button>
+                    <button class="tablinks">3D</button>
+                    <button class="tablinks">UI</button>
+                    <button class="tablinks">Sound</button>
                 </div>
 
             </div>
-
+            
             <div class="stuff">
-
+                
                 <div class="middle">
-                    <input id="search" type="text" placeholder="Search" maxlength="30">
+                    <!-- Video here -->
+                    <video autoplay muted loop id="myVideo">
+                        <source src="grounded.mp4" type="video/mp4">
+                    </video>
                     <div class="contain">
+                        <input id="search" type="text" placeholder="Search" maxlength="30">
                         <div class="items">
                             <% if(cards.length > 0) { %>
                                 <%cards.forEach((card)=>{ %>

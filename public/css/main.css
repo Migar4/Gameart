@@ -12,6 +12,7 @@ img{
     width: 300px;
     height: 300px;
 }
+
 .header_bar{
     height: 12%;
     width: 100%;
@@ -25,9 +26,10 @@ img{
 }
 
 .header_bar p{
-    margin: 0 auto;
-    text-align: center;
+    margin-left: 20px;
+    text-align: left;
 }
+
 .header_bar p{
     color: white;
     font-size: 25px;
@@ -43,6 +45,10 @@ img{
     background-color: rgba(0, 0, 0, 0.3);
     overflow-x: hidden;
     padding-top: 16%;
+}
+
+.sidenav::-webkit-scrollbar {
+    display: none;
 }
 
 .sidenav button{
@@ -65,17 +71,17 @@ img{
     position: fixed;
     z-index: 0;
     background-color: rgb(66, 66, 66);
-    overflow-x: hidden; 
+    overflow-x: hidden;
 }
 
-.middle input{
+#search{
     align-items: center;
-    position: fixed;
+    position: relative;
     width: 40%;
     height: 10%;
-    margin-bottom: 40px;
-    top: 20%;
-    left: 38%;
+    margin-bottom: 1%;
+    /* top: 20%; */
+    left: 32%;
     z-index: 1;
     text-align: center;
     font-size: 300%;
@@ -92,11 +98,11 @@ img{
 
 .middle .items::-webkit-scrollbar {
     display: none;
-  }
+}
 
 .contain{
-    position: fixed;
-    top: 30%;
+    position: relative;
+    /* top: 30%; */
     left: 16%;
     width: 84%;
     height: 78%;
@@ -129,4 +135,12 @@ img{
 .content{
     width: 100%;
     margin: 0;
+}
+
+
+#myVideo{
+    width: 100%;
+    position: relative;
+    left: 16%;
+    bottom: 0;
 }

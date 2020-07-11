@@ -115,9 +115,8 @@ router.get("/download/:id", async (req, res) => {
             fileStream.pipe(res);
             
             fileStream.on('end', () => {
-                console.log("END");
                 fs.unlink(file, () => {
-                    console.log(`Deleted ${card.name}`);
+                    
                 });
             });
 

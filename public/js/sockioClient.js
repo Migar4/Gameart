@@ -29,3 +29,9 @@ search.addEventListener('keyup', (input) => {
     socket.emit('find', search.value);
 });
 
+
+//to send the server which category is needed
+function sendCategory(cat){
+    items.innerHTML = ``;
+    socket.emit('cat', cat);
+}

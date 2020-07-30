@@ -2,6 +2,7 @@ const cardModel = require('./models/cards').Card;
 const fs = require('fs');
 const sharp = require('sharp');
 const util = require('util');
+const {catAll, cat2D, cat3D, catIso, catUI, catSound} = require('./models/categories');
 
 
 let data = [
@@ -66,19 +67,73 @@ async function seedDB(){
             console.log("deleted the cards");
         }
 
+        //delete all in categories
+        let cat_All = await catAll.deleteMany({}),
+        cat_2D = await cat2D.deleteMany({}), 
+        cat_3D = await cat3D.deleteMany({}), 
+        cat_Iso = await catIso.deleteMany({}), 
+        cat_UI = await catUI.deleteMany({}), 
+        cat_Sound = await catSound.deleteMany({});
+
+        if(!cat_All || !cat_2D || !cat_3D || !cat_Iso || !cat_UI || !cat_Sound){
+            console.log("Couldn't delete categories");
+        }else{
+            console.log("Deleted the categories");
+        }
+
+        let cat_All_cr = await catAll.create({}),
+            cat_2D_cr = await cat2D.create({}), 
+            cat_3D_cr = await cat3D.create({}), 
+            cat_Iso_cr = await catIso.create({}), 
+            cat_UI_cr = await catUI.create({}), 
+            cat_Sound_cr = await catSound.create({});
+        
+
         data.forEach(async (seed) => {
             try{
                 const card = await cardModel.create(seed);
 
+                let cat = Math.floor(Math.random() * 5) + 1;
+
+
+                switch(cat){
+                    case 1:
+                        await cat_2D_cr.cards.push(card);
+                        break;
+                    case 2:
+                        await cat_3D_cr.cards.push(card);  
+                        break;
+                    case 3:
+                        await cat_Iso_cr.cards.push(card);
+                        break;
+                    case 4:
+                        await cat_UI_cr.cards.push(card);
+                        break;
+                    case 5:
+                        await cat_Sound_cr.cards.push(card);
+                        break;
+                        
+                }
+
+                let a = await cat_All_cr.cards.push(card);
+                console.log(a)
                 if(!card)
                     console.log("Could not create card");
                 else
-                    console.log("Created card");
+                    console.log("Created card on category " + cat);
             }catch(e){
                 console.log(e);
             }
-        });
-
+        }
+        );
+        
+        await cat_Sound_cr.save();
+        await cat_2D_cr.save();
+        await cat_3D_cr.save();
+        await cat_Iso_cr.save();
+        await cat_UI_cr.save();
+        await cat_All_cr.save();
+        
     }catch(e){
         console.log(e);
     }

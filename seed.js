@@ -115,8 +115,8 @@ async function seedDB(){
                         
                 }
 
-                let a = await cat_All_cr.cards.push(card);
-                console.log(a)
+                await cat_All_cr.cards.push(card);
+
                 if(!card)
                     console.log("Could not create card");
                 else
@@ -127,7 +127,7 @@ async function seedDB(){
         }
         );
         
-        await cat_Sound_cr.save();
+        await cat_Sound_cr.save(); //this is not working for some reason
         await cat_2D_cr.save();
         await cat_3D_cr.save();
         await cat_Iso_cr.save();

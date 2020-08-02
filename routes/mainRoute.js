@@ -10,6 +10,7 @@ const fs = require('fs');
 /////////////
 
 const cardModel = require('../models/cards').Card;
+const {catAll, cat2D, cat3D, catIso, catUI, catSound} = require('../models/categories');
 
 ///////////////
 //Config Multer
@@ -56,7 +57,28 @@ router.post("/upload", upload.fields([{name: "upload", maxCount: 1}, {name: "img
         //create a zip here
         
         let card = new cardModel({name: req.body.name, showImage: buf, description: req.body.desc, images: imgs});
-        
+
+
+        //since only one document in each collection is there searching everything gives that document
+        switch(req.body.category){
+            case "1":
+                await cat2D.updateOne({}, {$push: {cards: card}});
+                break;
+            case "2":
+                await catIso.updateOne({}, {$push: {cards: card}});
+                break;
+            case "3":
+                await cat3D.updateOne({}, {$push: {cards: card}});
+                break;
+            case "4":
+                await catUI.updateOne({}, {$push: {cards: card}});
+                break;
+            case "5":
+                await catSound.updateOne({}, {$push: {cards: card}});
+                break;
+        }
+        await catAll.updateOne({}, {$push: {cards: card}});
+
         card.save();
         res.redirect("/");
     }catch(e){

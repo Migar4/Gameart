@@ -3,50 +3,72 @@ const fs = require('fs');
 const sharp = require('sharp');
 const util = require('util');
 const {catAll, cat2D, cat3D, catIso, catUI, catSound} = require('./models/categories');
+const user = require('./models/user');
+const Ad = require('./models/ads');
 
+
+let u = new user({
+    username: "Theodore",
+    password: "abc123",
+    email: "abc@gmail.com",
+    tokens: ["abdc"]
+});
+
+let ad = new Ad({
+    adUrl: 'ctfo.io/ad',
+    gameLink: 'ctfo.mp4',
+    owner: u
+}).save();
 
 let data = [
     {
         name: "Spongebob",
         description: "Spongebob and his friends",
         showImage: null,
-        type: "2D"
+        type: "2D",
+        owner: u
     },
     {
         name: "Looney toons",
         description: "Looney toons characters",
         showImage: null,
-        type: "2D"
+        type: "2D",
+        owner: u
     },
     {
         name: "Tweety",
         description: "Tweety the bird",
         showImage: null,
-        type: "2D"
+        type: "2D",
+        owner: u
     },
     {
         name: "Daffy",
         description: "Daffy duck",
         showImage: null,
-        type: "2D"
+        type: "2D",
+        owner: u
     },
     {
         name: "Bugs bunny",
         description: "Bugs bunny the rabbit",
         showImage: null,
-        type: "2D"
+        type: "2D",
+        owner: u
     },
     {
         name: "Road runner and coyote",
         description: "Road runner running away from coyote",
         showImage: null,
-        type: "2D"
+        type: "2D",
+        owner: u
     },
     {
         name: "Taz",
         description: "Tasmanian wolf taz",
         showImage: null,
-        type: "2D"
+        type: "2D",
+        owner: u
     },
 ];
 
@@ -137,6 +159,9 @@ async function seedDB(){
     }catch(e){
         console.log(e);
     }
+
+    let ans = await u.populate('ads').execPopulate();
+    console.log(ans.ads);
 }
 
 module.exports = seedDB;

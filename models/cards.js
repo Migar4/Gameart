@@ -18,6 +18,11 @@ const cardSchema = new mongoose.Schema({
     },
     tags:{
         type: Array
+    },
+    owner:{
+        type: mongoose.Types.ObjectId,
+        required: true,
+        ref: 'User'
     }
 });
 

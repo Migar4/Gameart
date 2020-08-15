@@ -167,6 +167,29 @@ router.get("/download/:id", async (req, res) => {
     
 });
 
+//register route view
+router.get('/register', (req, res) => {
+
+});
+
+router.post('/register', (req, res) => {
+
+});
+
+//login route view
+router.get('/login', (req, res) => {
+    res.render('login');
+});
+
+router.post('/login', async (req, res) => {
+
+});
+
+//logout
+router.post('/logout', (req, res) => {
+
+});
+
 //any other route redirect back to home
 router.get("*", (req, res) => {
     res.redirect("/");

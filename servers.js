@@ -18,34 +18,11 @@ const session = require('express-session');
 //config passport
 //////////////////
 
-passport.use(new localStrat(async (username, password, done) => {
-    //authentication method
-    const found_user = await User.findOne({username});
-
-    if(!found_user){
-        return done(null, false, {message: "No user with that username"});
-    }
-
-    try{
-        if(await bcrypt.compare(password, found_user.password)){
-            return done(null, found_user);
-        }else{
-            return done(null, false, {message: "Password incorrect"});
-        }
-    }catch(e){
-        return done(e);
-    }
-}));
-
-const find_user_id = async (id) => {
-    return await User.findById(id);
-}
+passport.use(new localStrat(User.authenticate));
 
 //serialization and deserialization of the user
-passport.serializeUser((user, done) => done(null, user.id));
-passport.deserializeUser((id, done) => {
-    return done(null, find_user_id(id));
-});
+passport.serializeUser(User.serializeUser);
+passport.deserializeUser(User.deserializeUser);
 
 ///////////////
 //config app

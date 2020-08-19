@@ -1,8 +1,10 @@
 const express = require('express');
-const sharp = require("sharp");
+const sharp = require('sharp');
 const multer = require('multer');
 const archiver = require('archiver');
 const fs = require('fs');
+const passport = require('passport');
+const User = require('../models/user');
 
 
 /////////////
@@ -169,11 +171,21 @@ router.get("/download/:id", async (req, res) => {
 
 //register route view
 router.get('/register', (req, res) => {
-
+    res.render('register');
 });
 
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
+    console.log(req.body);
+    const user = new User({username: req.body.name, password: req.body.password, email: req.body.email});
 
+    try{
+        const token = await user.generateAuthToken();
+        await user.save();
+    }catch(e){
+        console.log(e);
+        res.status(400).redirect('/register');
+    }
+    res.redirect('/register');
 });
 
 //login route view
@@ -181,13 +193,13 @@ router.get('/login', (req, res) => {
     res.render('login');
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', passport.authenticate('local', {successRedirect: '/', failureRedirect: '/login'}), async (req, res) => {
 
 });
 
 //logout
 router.post('/logout', (req, res) => {
-
+    req.logout();
 });
 
 //any other route redirect back to home

@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const card = require('./cards').Card;
 const ad = require('./ads');
 const bcrypt = require('bcrypt');
+const jwt  = require('jsonwebtoken');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
     username:{
@@ -21,7 +23,9 @@ const userSchema = new mongoose.Schema({
         trim: true,
         lowercase: true,
         validate(email){
-            //validate
+            if(!validator.isEmail(email)){
+                throw new Error("Email is not valid");
+            }
         }
     },
     tokens: [{
@@ -55,6 +59,19 @@ userSchema.methods.verifyPassword = async function(password){
     const isMatch = await bcrypt.compare(user.password, password);
     return (isMatch);
 };
+
+userSchema.methods.generateAuthToken = async function(){
+    const user = this;
+
+    const token  =jwt.sign({_id: user.id.toString()}, "GAMEART");
+    user.tokens = user.tokens.concat({token});
+
+    try{
+        await user.save();
+    }catch(e){
+        console.log(e);
+    }
+}
 
 userSchema.statics.authenticate = async (username, password, done) => {
     //authentication method catered for passport js

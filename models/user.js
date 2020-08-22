@@ -10,6 +10,16 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: true,
         required: true,
+        validate:{
+            validator: async function(name){
+
+                const user = await User.find({name});
+                if(user){
+                    Promise.resolve(false);
+                }
+            },
+            message: `username already exist`
+        },
         trim: true
     },
     password:{
@@ -22,10 +32,19 @@ const userSchema = new mongoose.Schema({
         unique: true,
         trim: true,
         lowercase: true,
-        validate(email){
-            if(!validator.isEmail(email)){
-                throw new Error("Email is not valid");
-            }
+        validate:{
+            validator: async function(email){
+
+                if(!validator.isEmail(email)){
+                    throw new Error("Email is not valid");
+                }
+
+                const user = await User.find({email});
+                if(user){
+                    Promise.resolve(false);
+                }
+            },
+            message: "User with email already exist"
         }
     },
     tokens: [{
@@ -69,7 +88,7 @@ userSchema.methods.generateAuthToken = async function(){
     try{
         await user.save();
     }catch(e){
-        console.log(e);
+        return(e);
     }
 }
 
@@ -91,7 +110,7 @@ userSchema.statics.serializeUser = async function(user, done){
 }
 
 userSchema.statics.deserializeUser = async function(id, done){
-    return done(null, await User.findId({id}));
+    return done(null, await User.findById(id));
 }
 
 userSchema.pre('save', async function(next){

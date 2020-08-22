@@ -5,6 +5,7 @@ const archiver = require('archiver');
 const fs = require('fs');
 const passport = require('passport');
 const User = require('../models/user');
+const auth = require('../middleware/auth');
 
 
 /////////////
@@ -13,6 +14,7 @@ const User = require('../models/user');
 
 const cardModel = require('../models/cards').Card;
 const {catAll, cat2D, cat3D, catIso, catUI, catSound} = require('../models/categories');
+const { assert } = require('console');
 
 ///////////////
 //Config Multer
@@ -39,13 +41,13 @@ router.get("/", (req, res) => {
 
 
 //upload page
-router.get("/upload", (req, res) => {
+router.get("/upload", auth, (req, res) => {
     res.render("upload");
 });
 
 
 //convert to png and save as a buffer to the db
-router.post("/upload", upload.fields([{name: "upload", maxCount: 1}, {name: "imgs", maxCount: 20}]), async (req, res) => {
+router.post("/upload", auth, upload.fields([{name: "upload", maxCount: 1}, {name: "imgs", maxCount: 20}]), async (req, res) => {
 
     try{
         const buf = await sharp(req.files.upload[0].buffer).png().toBuffer();
@@ -175,25 +177,29 @@ router.get('/register', (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-    console.log(req.body);
+
     const user = new User({username: req.body.name, password: req.body.password, email: req.body.email});
 
     try{
         const token = await user.generateAuthToken();
+        //validate user
+        await user.validate();
         await user.save();
+        res.redirect('/register');
     }catch(e){
-        console.log(e);
-        res.status(400).redirect('/register');
+        res.status(400).send(e);
     }
-    res.redirect('/register');
+    
 });
 
 //login route view
 router.get('/login', (req, res) => {
+    // const backURL = req.header('Referer') || '/';
+    // req.session.backURL = backURL;
     res.render('login');
 });
 
-router.post('/login', passport.authenticate('local', {successRedirect: '/', failureRedirect: '/login'}), async (req, res) => {
+router.post('/login', passport.authenticate('local', {failureRedirect: '/login', successRedirect: '/'}), async (req, res) => {
 
 });
 

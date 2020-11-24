@@ -1,9 +1,16 @@
 const mongoose = require("mongoose");
+const crypto = require('crypto');
 const card = require('./cards').Card;
 const ad = require('./ads');
-const bcrypt = require('bcrypt');
 const jwt  = require('jsonwebtoken');
 const validator = require('validator');
+
+const fs = require('fs');
+const path = require('path');
+
+const pathToKey = path.join(__dirname, '..', 'id_rsa_priv.pem');
+const PRIV_KEY = fs.readFileSync(pathToKey, 'utf8');
+
 
 const userSchema = new mongoose.Schema({
     username:{
@@ -22,9 +29,14 @@ const userSchema = new mongoose.Schema({
         },
         trim: true
     },
-    password:{
+    password_hash:{
         type: String,
-        required: true,
+        // required: true,
+        trim: false
+    },
+    password_salt:{
+        type: String,
+        // required: true,
         trim: false
     },
     email:{
@@ -75,18 +87,23 @@ userSchema.virtual('ads', {
 
 userSchema.methods.verifyPassword = async function(password){
     const user = this;
-    const isMatch = await bcrypt.compare(user.password, password);
-    return (isMatch);
+    var hashVerify = crypto.pbkdf2Sync(password, user.password_salt, 10000, 64, 'sha512').toString('hex');
+
+    return hashVerify === user.password_hash;
 };
 
 userSchema.methods.generateAuthToken = async function(){
     const user = this;
 
-    const token  =jwt.sign({_id: user.id.toString()}, "GAMEART");
+    const data = {
+        id: user.id
+    };
+    const token  =jwt.sign(data, PRIV_KEY, { algorithm: 'RS256' });
     user.tokens = user.tokens.concat({token});
 
     try{
         await user.save();
+        return 'Bearer ' + token;
     }catch(e){
         return(e);
     }
@@ -105,18 +122,25 @@ userSchema.statics.authenticate = async (username, password, done) => {
     }
 }
 
-userSchema.statics.serializeUser = async function(user, done){
-    done(null, user.id);
-}
+// userSchema.statics.serializeUser = async function(user, done){
+//     done(null, user.id);
+// }
 
-userSchema.statics.deserializeUser = async function(id, done){
-    return done(null, await User.findById(id));
-}
+// userSchema.statics.deserializeUser = async function(id, done){
+//     return done(null, await User.findById(id));
+// }
 
 userSchema.pre('save', async function(next){
     if(this.isModified("password")){
         try{
-            this.password = await bcrypt.hash(this.password, 8);
+            const user = this;
+            var salt = crypto.randomBytes(32).toString('hex');
+            var genHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+            
+            user.password_hash = genHash;
+            user.password_salt = salt;
+            next();
+    
         }catch(e){
             throw new Error(e);
         }

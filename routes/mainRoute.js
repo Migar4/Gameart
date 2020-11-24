@@ -1,9 +1,10 @@
 const express = require('express');
 const sharp = require('sharp');
 const multer = require('multer');
+const passport = require('passport');
 const archiver = require('archiver');
 const fs = require('fs');
-const passport = require('passport');
+
 const User = require('../models/user');
 const auth = require('../middleware/auth');
 
@@ -41,13 +42,13 @@ router.get("/", (req, res) => {
 
 
 //upload page
-router.get("/upload", auth, (req, res) => {
+router.get("/upload", passport.authenticate('jwt', {session: false}), (req, res) => {
     res.render("upload");
 });
 
 
 //convert to png and save as a buffer to the db
-router.post("/upload", auth, upload.fields([{name: "upload", maxCount: 1}, {name: "imgs", maxCount: 20}]), async (req, res) => {
+router.post("/upload", passport.authenticate('jwt', {session: false}), upload.fields([{name: "upload", maxCount: 1}, {name: "imgs", maxCount: 20}]), async (req, res) => {
 
     try{
         const buf = await sharp(req.files.upload[0].buffer).png().toBuffer();
@@ -177,17 +178,17 @@ router.get('/register', (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-
-    const user = new User({username: req.body.name, password: req.body.password, email: req.body.email});
+    //pass in the password 'pre' will take care of hashing
+    console.log(req.query.username);
+    const newUser = new User({username: req.query.username, password: req.query.password, email: req.query.email});
 
     try{
-        const token = await user.generateAuthToken();
-        //validate user
-        await user.validate();
-        await user.save();
-        res.redirect('/register');
-    }catch(e){
-        res.status(400).send(e);
+        var user = await newUser.save();
+        var token = await user.generateAuthToken();
+        
+        res.status(200).send({token});
+    }catch(err){
+        res.status(404).send({msg: err});
     }
     
 });
@@ -199,8 +200,29 @@ router.get('/login', (req, res) => {
     res.render('login');
 });
 
-router.post('/login', passport.authenticate('local', {failureRedirect: '/login', successRedirect: '/'}), async (req, res) => {
-
+router.post('/login', async (req, res) => {
+    try{
+        const user = await User.findOne({
+            username: req.body.username
+        });
+    
+        if(!user){
+            res.status(401).send("Could not find user");
+        }
+    
+        let isValid = await user.verifyPassword(req.body.password);
+    
+        if(isValid){
+            const token = user.generateAuthToken();
+            res.status(200).send({token});
+        }else{
+            res.status(401).send({
+                msg: "Error loging in"
+            });
+        }
+    }catch(err){
+        res.status(404).send(err);
+    }
 });
 
 //logout

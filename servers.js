@@ -7,22 +7,15 @@ const User = require('./models/user');
 
 const mainRouter = require('./routes/mainRoute');
 
-const SECRET = "GAMEART";
 
 //authentication libs
 const passport = require('passport');
-const localStrat = require('passport-local');
-const session = require('express-session');
 
 //////////////////
 //config passport
 //////////////////
 
-passport.use(new localStrat(User.authenticate));
-
-//serialization and deserialization of the user
-passport.serializeUser(User.serializeUser);
-passport.deserializeUser(User.deserializeUser);
+require('./config/passport')(passport);
 
 ///////////////
 //config app
@@ -34,14 +27,13 @@ app.use(helmet());
 
 app.set("view engine", "ejs");
 
-app.use(session({
-    secret: SECRET,
-    resave: false,
-    saveUninitialized: false
-}));
+// app.use(session({
+//     secret: SECRET,
+//     resave: false,
+//     saveUninitialized: false
+// }));
 
 app.use(passport.initialize());
-app.use(passport.session());
 
 app.use(express.static(__dirname + '/views'));
 app.use(express.static(__dirname + '/public'));

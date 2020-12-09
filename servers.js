@@ -40,8 +40,8 @@ app.use(express.static(__dirname + '/public'));
 
 app.use(mainRouter);
 
-
-const expressServer = app.listen(3000, () => {
+const PORT = process.env.PORT || 3000;
+const expressServer = app.listen(PORT, () => {
     console.log("listening on port 3000");
 });
 const io = socketio(expressServer);

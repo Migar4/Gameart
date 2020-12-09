@@ -1,5 +1,5 @@
 const express = require('express');
-const sharp = require('sharp');
+//const sharp = require('sharp');
 const multer = require('multer');
 const archiver = require("archiver");
 
@@ -52,7 +52,7 @@ router.get("/upload", auth, (req, res) => {
 
 
 //convert to png and save as a buffer to the db
-router.post("/upload", auth, upload.fields([{name: "upload", maxCount: 1}, {name: "imgs", maxCount: 20}]), async (req, res) => {
+/*router.post("/upload", auth, upload.fields([{name: "upload", maxCount: 1}, {name: "imgs", maxCount: 20}]), async (req, res) => {
 
     try{
         const buf = await sharp(req.files.upload[0].buffer).png().toBuffer();
@@ -98,7 +98,7 @@ router.post("/upload", auth, upload.fields([{name: "upload", maxCount: 1}, {name
 }, (error, req, res, next) => {
     console.log(error);
     res.status(400).send({error : error.message});
-});
+});*/
 
 
 //download route

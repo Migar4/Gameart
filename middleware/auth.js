@@ -1,10 +1,5 @@
+const passport = require("passport");
 
-async function authenticate(req, res, next){
-    if(req.isAuthenticated()){
-        return next();
-    }else{
-        return res.redirect('/login');
-    }
-}
+const authenticate = passport.authenticate('jwt', {session: false});
 
 module.exports = authenticate;

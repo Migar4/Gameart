@@ -3,8 +3,12 @@ const mongoose = require('mongoose');
 const adsSchema = mongoose.Schema({
     adUrl: {
         type: String,
-        required: true
     },
+    ads: [{
+        ad: {
+            type: Buffer
+        }
+    }],
     gameLink: {
         type: String,
         required: true

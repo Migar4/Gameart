@@ -1,12 +1,16 @@
 const express = require('express');
 const sharp = require('sharp');
 const multer = require('multer');
-const passport = require('passport');
-const archiver = require('archiver');
+const archiver = require("archiver");
+
 const fs = require('fs');
 
+
+const gzip = require('../utils/gzip');
 const User = require('../models/user');
 const auth = require('../middleware/auth');
+const hash = require("../utils/hash");
+const adModel = require("../models/ads");
 
 
 /////////////
@@ -23,7 +27,7 @@ const { assert } = require('console');
 
 const upload = multer({
     limits: {
-        fileSize: 10000000
+        fileSize: 100000000000
     }
 });
 
@@ -42,13 +46,13 @@ router.get("/", (req, res) => {
 
 
 //upload page
-router.get("/upload", passport.authenticate('jwt', {session: false}), (req, res) => {
+router.get("/upload", auth, (req, res) => {
     res.render("upload");
 });
 
 
 //convert to png and save as a buffer to the db
-router.post("/upload", passport.authenticate('jwt', {session: false}), upload.fields([{name: "upload", maxCount: 1}, {name: "imgs", maxCount: 20}]), async (req, res) => {
+router.post("/upload", auth, upload.fields([{name: "upload", maxCount: 1}, {name: "imgs", maxCount: 20}]), async (req, res) => {
 
     try{
         const buf = await sharp(req.files.upload[0].buffer).png().toBuffer();
@@ -59,9 +63,9 @@ router.post("/upload", passport.authenticate('jwt', {session: false}), upload.fi
             imgs.push(img);
         }
 
-        //create a zip here
+        const owner = User.findOne({_id: req.userID});
         
-        let card = new cardModel({name: req.body.name, showImage: buf, description: req.body.desc, images: imgs});
+        let card = new cardModel({name: req.body.name, showImage: buf, description: req.body.desc, images: imgs, owner});
 
 
         //since only one document in each collection is there searching everything gives that document
@@ -178,9 +182,13 @@ router.get('/register', (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-    //pass in the password 'pre' will take care of hashing
-    console.log(req.query.username);
-    const newUser = new User({username: req.query.username, password: req.query.password, email: req.query.email});
+    //pass in the password to hash to get the hash and salt
+
+    const hash_and_salt = hash(req.query.password);
+    const password_hash = (await hash_and_salt).genHash;
+    const password_salt = (await hash_and_salt).salt;
+
+    const newUser = new User({username: req.query.username, email: req.query.email, password_hash, password_salt, credit: 200});
 
     try{
         var user = await newUser.save();
@@ -203,17 +211,18 @@ router.get('/login', (req, res) => {
 router.post('/login', async (req, res) => {
     try{
         const user = await User.findOne({
-            username: req.body.username
+            username: req.query.username
         });
-    
+        
         if(!user){
             res.status(401).send("Could not find user");
         }
     
-        let isValid = await user.verifyPassword(req.body.password);
-    
+        let isValid = await user.verifyPassword(req.query.password);
+        
         if(isValid){
-            const token = user.generateAuthToken();
+            const token = await user.generateAuthToken();
+            
             res.status(200).send({token});
         }else{
             res.status(401).send({
@@ -227,7 +236,34 @@ router.post('/login', async (req, res) => {
 
 //logout
 router.post('/logout', (req, res) => {
-    req.logout();
+    //work on this later
+});
+
+//ads
+router.get('/ads', auth, (req, res) => {
+    res.render("ads");
+    console.log(req.userID);
+});
+
+router.post('/ads', auth, upload.fields([{name:'ads', maxCount: 5}]), async (req, res) => {
+    try{
+        const user = await User.findOne({_id: req.userID});
+        let ads = new Array;
+
+        for(i = 0; i < req.files.ads.length; i++){
+            const comp = await gzip.gzip(req.files.ads[i].buffer, {windowBits: 14, memLevel: 9});
+            ads.push(comp);
+        }
+
+        const ad = new adModel({ads, gameLink: "http://ctfo.io", owner: user});
+        const adv = await ad.save();
+
+        const ret = await adModel.find({}).populate('ads').exec();
+        console.log(ret);
+        res.status(200).send(ret);
+    }catch(e){
+        res.status(400).send(e);
+    }
 });
 
 //any other route redirect back to home

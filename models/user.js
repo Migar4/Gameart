@@ -98,7 +98,7 @@ userSchema.methods.generateAuthToken = async function(){
     const data = {
         id: user.id
     };
-    const token  =jwt.sign(data, PRIV_KEY, { algorithm: 'RS256' });
+    const token = jwt.sign(data, PRIV_KEY, { algorithm: 'RS256' });
     user.tokens = user.tokens.concat({token});
 
     try{
@@ -108,45 +108,6 @@ userSchema.methods.generateAuthToken = async function(){
         return(e);
     }
 }
-
-userSchema.statics.authenticate = async (username, password, done) => {
-    //authentication method catered for passport js
-    try{
-        const found_user = await User.findOne({username});
-
-        if(!found_user) return done(null, false);
-        if(!found_user.verifyPassword(password)) return done(null, false);
-        return done(null, found_user);
-    }catch(e){
-        return done(e);
-    }
-}
-
-// userSchema.statics.serializeUser = async function(user, done){
-//     done(null, user.id);
-// }
-
-// userSchema.statics.deserializeUser = async function(id, done){
-//     return done(null, await User.findById(id));
-// }
-
-userSchema.pre('save', async function(next){
-    if(this.isModified("password")){
-        try{
-            const user = this;
-            var salt = crypto.randomBytes(32).toString('hex');
-            var genHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-            
-            user.password_hash = genHash;
-            user.password_salt = salt;
-            next();
-    
-        }catch(e){
-            throw new Error(e);
-        }
-    }
-    next();
-});
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

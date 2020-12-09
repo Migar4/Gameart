@@ -12,16 +12,18 @@ const PUB_KEY = fs.readFileSync(pathToKey, 'utf8');
 const options = {
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
     secretOrKey: PUB_KEY,
-    algorithms: ['RS256']
+    algorithms: ['RS256'],
+    passReqToCallback: true
 };
 
-const strategy = new JWTStrategy(options, async (payload, done) => {
+const strategy = new JWTStrategy(options, async (req, payload, done) => {
     try{
         const user = await User.findOne({
             _id: payload.id
         });
         
         if(user){
+            req.userID = user._id
             return done(null, user);
         }else{
             return done(null, false);
